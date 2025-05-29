@@ -59,7 +59,7 @@ def make_embed(tweet: Tweet) -> Embed:
 
     embed = (
         Embed(
-            title=f"New {action_type(tweet)} from @{tweet.user.screen_name}",
+            title=f"New {action_type} from @{tweet.user.screen_name}",
             description=tweet_text,
             url=get_url(tweet),
             color=0x1DA0F2,
