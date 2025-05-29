@@ -29,7 +29,7 @@ def read_config() -> Configuration:
     discord_token = environ.get("DISCORD_TOKEN")
     timezone_text = environ.get("TIMEZONE_TEXT", "Asia/Tokyo")
 
-    if any(lambda item: item is None, [x_cookies_json, database_path, discord_token]):
+    if any(item is None for item in [x_cookies_json, database_path, discord_token]):
         raise ConfigurationError
 
     return Configuration(
