@@ -25,9 +25,7 @@ class DatabaseService:
             return
 
         SQLModel.metadata.create_all(
-            create_engine(
-                f"sqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True
-            )
+            create_engine(f"sqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True)
         )
 
     def session(self):

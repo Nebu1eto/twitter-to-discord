@@ -172,7 +172,7 @@ class SubscribeCog(Cog):
         channel: TextChannel | None = None,
     ):
         channel_name = (
-            "전체"
+            "Total"
             if channel is None
             else f"https://discord.com/channels/{channel.guild.id}/{channel.id}"
         )
@@ -189,7 +189,7 @@ class SubscribeCog(Cog):
         content = f"There are {len(subscriptions)} registered subscriptions.\n{'\n'.join(channels)}"
         await interaction.response.send_message(
             embed=Embed(
-                title=f"Subscriptions - {channel_name}",
+                title=f"Subscriptions ({channel_name})",
                 description=content,
                 colour=Colour.blue(),
                 timestamp=DateTime.now(self._config.timezone_text),
@@ -232,7 +232,7 @@ class SubscribeCog(Cog):
             return
 
         async with self._db_service.session() as session:
-            tweets = await self._x_service.fetch_tweets(username)
+            tweets = await self._x_service.fetch_tweets(username, fetch)
             subscription = Subscription(
                 username=username,
                 channel_id=channel.id,
