@@ -17,16 +17,16 @@ class DatabaseService:
 
     def _create_engine(self):
         return create_async_engine(
-            f"sqlite+aiosqlite:///{Path(self._config.database_path / 'tracker.db')}", echo=True
+            f"sqlite+aiosqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True
         )
 
     def initialize(self):
-        if Path(self._config.database_path / "tracker.db").is_file():
+        if (Path(self._config.database_path) / "tracker.db").is_file():
             return
 
         SQLModel.metadata.create_all(
             create_engine(
-                f"sqlite:///{Path(self._config.database_path / 'tracker.db')}", echo=True
+                f"sqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True
             )
         )
 
