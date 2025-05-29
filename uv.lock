@@ -881,6 +881,49 @@ wheels = [
 ]
 
 [[package]]
+name = "twitter-to-discord"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "aiocron" },
+    { name = "aiosqlite" },
+    { name = "discord-py" },
+    { name = "pendulum" },
+    { name = "pydantic-extra-types" },
+    { name = "python-dotenv" },
+    { name = "sqlmodel" },
+    { name = "twikit" },
+    { name = "typing-extensions" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiocron", specifier = ">=2.1" },
+    { name = "aiosqlite", specifier = ">=0.21.0" },
+    { name = "discord-py", specifier = ">=2.5.2" },
+    { name = "pendulum", specifier = ">=3.1.0" },
+    { name = "pydantic-extra-types", specifier = ">=2.10.4" },
+    { name = "python-dotenv", specifier = ">=1.1.0" },
+    { name = "sqlmodel", specifier = ">=0.0.24" },
+    { name = "twikit", specifier = ">=2.3.3" },
+    { name = "typing-extensions", specifier = ">=4.13.2" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-asyncio", specifier = ">=1.0.0" },
+    { name = "ruff", specifier = ">=0.11.11" },
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.13.2"
 source = { registry = "https://pypi.org/simple" }
@@ -929,49 +972,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/5e/f6/7c9c964681fb148e0293e6860108d378e09ccab2218f9063fd3eb87f840a/webvtt-py-0.5.1.tar.gz", hash = "sha256:2040dd325277ddadc1e0c6cc66cbc4a1d9b6b49b24c57a0c3364374c3e8a3dc1", size = 55128, upload_time = "2024-05-30T13:40:17.189Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/ed/aad7e0f5a462d679f7b4d2e0d8502c3096740c883b5bbed5103146480937/webvtt_py-0.5.1-py3-none-any.whl", hash = "sha256:9d517d286cfe7fc7825e9d4e2079647ce32f5678eb58e39ef544ffbb932610b7", size = 19802, upload_time = "2024-05-30T13:40:14.661Z" },
-]
-
-[[package]]
-name = "x-post-fetch"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "aiocron" },
-    { name = "aiosqlite" },
-    { name = "discord-py" },
-    { name = "pendulum" },
-    { name = "pydantic-extra-types" },
-    { name = "python-dotenv" },
-    { name = "sqlmodel" },
-    { name = "twikit" },
-    { name = "typing-extensions" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiocron", specifier = ">=2.1" },
-    { name = "aiosqlite", specifier = ">=0.21.0" },
-    { name = "discord-py", specifier = ">=2.5.2" },
-    { name = "pendulum", specifier = ">=3.1.0" },
-    { name = "pydantic-extra-types", specifier = ">=2.10.4" },
-    { name = "python-dotenv", specifier = ">=1.1.0" },
-    { name = "sqlmodel", specifier = ">=0.0.24" },
-    { name = "twikit", specifier = ">=2.3.3" },
-    { name = "typing-extensions", specifier = ">=4.13.2" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-asyncio", specifier = ">=1.0.0" },
-    { name = "ruff", specifier = ">=0.11.11" },
 ]
 
 [[package]]

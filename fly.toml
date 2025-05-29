@@ -1,0 +1,35 @@
+app = 'twitter-to-discord'
+primary_region = 'nrt'
+
+[build]
+
+[env]
+DATABASE_PATH = '/data'
+FETCH_INTERVAL = '10'
+FETCH_PAGE_INTERVAL = '10'
+
+[[mounts]]
+source = 'twitter_to_discord_mount'
+destination = '/data'
+initial_size = '1gb'
+processes = ['app']
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 0
+processes = ['app']
+
+[[services]]
+protocol = ''
+internal_port = 0
+auto_stop_machines = 'stop'
+auto_start_machines = false
+min_machines_running = 0
+ports = []
+processes = ['app']
+
+[[vm]]
+size = 'shared-cpu-1x'
