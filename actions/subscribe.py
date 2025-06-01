@@ -151,11 +151,19 @@ class SubscribeCog(Cog):
                 tweets = self._x_service.filter(
                     tweets, ignore_replies=ignore_replies, ignore_retweets=ignore_retweets
                 )
-                await channel.send(
-                    f"{len(tweets)} New Activities from @{tweets[0].user.screen_name}",
-                    embeds=[make_embed(tweet) for tweet in tweets],
-                )
 
+                text = f"{len(tweets)} New Activities from @{tweets[0].user.screen_name}"
+                if len(tweets) == 1:
+                    text = f"New Activity from @{tweets[0].user.screen_name}"
+                if len(tweets) > 10:
+                    text = (
+                        f"{len(tweets)} New Activities from @{tweets[0].user.screen_name}"
+                        "Due to Discord's API limitations, "
+                        "Tweet embeds are displayed up to a maximum of 10."
+                    )
+
+                # NOTE(Haze): Discord only accepts up to 10 embeds.
+                await channel.send(text, embeds=[make_embed(tweet) for tweet in tweets][:10])
                 await session.commit()
             except NoResultFound:
                 if (job := self._subscriptions.get(subscription_id, None)) is not None:
