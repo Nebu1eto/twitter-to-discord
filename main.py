@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 
@@ -6,6 +7,7 @@ from discord import Interaction
 from discord.app_commands import AppCommandError
 from discord.ext import commands
 
+from actions.admin import AdminCog
 from actions.subscribe import SubscribeCog
 from models.config import read_config
 from services.database import DatabaseService
@@ -59,7 +61,9 @@ async def on_ready():
     bot.tree.on_error = on_tree_error
 
     subscribe_cog = SubscribeCog(bot=bot, config=config, db=db, x=x)
-    await bot.add_cog(subscribe_cog)
+    admin_cog = AdminCog(bot=bot, config=config)
+    await asyncio.gather(*[bot.add_cog(cog) for cog in [subscribe_cog, admin_cog]])
+
     log.info(f"Bot {bot.user} is online.")
     await subscribe_cog.initialize()
 
