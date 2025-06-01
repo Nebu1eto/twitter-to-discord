@@ -130,17 +130,19 @@ class SubscribeCog(Cog):
                     f"- ignore_replies: {ignore_replies}, ignore_retweets: {ignore_retweets}"
                 )
 
-                previous_latest_tweet_id = subscription.latest_tweet_id
+                previous_latest_tweet_id = subscription.last_tweet_id
                 tweets = await self._x_service.fetch_tweets(
                     subscription.username,
                     subscription.fetch_type,
-                    subscription.latest_tweet_id,
+                    last_id=subscription.last_tweet_id,
+                    last_time=subscription.last_tweeted_at,
                 )
 
                 if len(tweets) == 0:
                     return
 
-                subscription.latest_tweet_id = tweets[0].id
+                subscription.last_tweet_id = tweets[0].id
+                subscription.last_tweeted_at = tweets[0].created_at_datetime
                 session.add(subscription)
 
                 if previous_latest_tweet_id is None:
@@ -240,7 +242,8 @@ class SubscribeCog(Cog):
                 fetch_type=fetch,
                 ignore_replies=ignore_replies,
                 ignore_retweets=ignore_retweets,
-                latest_tweet_id=tweets[0].id if len(tweets) != 0 else None,
+                last_tweet_id=tweets[0].id if len(tweets) != 0 else None,
+                last_tweeted_at=tweets[0].created_at_datetime if len(tweets) != 0 else None,
             )
             session.add(subscription)
             self.subscribe_item(subscription.id)

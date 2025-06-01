@@ -43,7 +43,7 @@ class AdminCog(Cog):
             embed=Embed(
                 title="Database",
                 description="This is the database for the bot.",
-                colour=Colour.blue(),
+                colour=Colour.green(),
             ),
             file=File(Path(self._config.database_path) / "tracker.db"),
             ephemeral=True,

@@ -12,7 +12,8 @@ class Subscription(SQLModel, table=True):
 
     channel_id: str
     guild_id: str
-    latest_tweet_id: str | None = Field(default=None, nullable=True)
+    last_tweet_id: str | None = Field(default=None, nullable=True)
+    last_tweeted_at: DateTime | None = Field(default=None, nullable=True)
     username: str
 
     fetch_type: str = Field(default="Tweets")

@@ -3,6 +3,7 @@ import logging
 from asyncio import sleep
 from typing import TYPE_CHECKING
 
+import pendulum
 from twikit import Client
 from twikit import Tweet
 from twikit import User
@@ -12,6 +13,8 @@ from twikit import UserUnavailable
 from models.config import Configuration
 
 if TYPE_CHECKING:
+    from pendulum import DateTime
+
     from models.base import FetchType
 
 logger = logging.getLogger(__name__)
@@ -29,26 +32,39 @@ class XService:
         except (UserNotFound, UserUnavailable):
             return None
 
-    # TODO(250529, Haze): need to add some defense code when if latest tweet is removed.
     async def fetch_tweets(
-        self, username: str, fetch_type: "FetchType", latest_id: str | None = None
+        self,
+        username: str,
+        fetch_type: "FetchType",
+        last_id: str | None = None,
+        last_time: "DateTime | None" = None,
     ) -> list[Tweet]:
-        logger.info(f"[Fetch:@{username}] Latest Id - {latest_id}, Fetch Type - {fetch_type}")
+        logger.info(f"[Fetch:@{username}] {fetch_type}, Id - {last_id}, Time - {last_time}")
+        if last_time is not None:
+            last_time = pendulum.instance(last_time)
 
         results: list[Tweet] = []
         user = await self._client.get_user_by_screen_name(username)
-        tweets = await user.get_tweets(fetch_type, count=1 if latest_id is None else 40)
+        tweets = await user.get_tweets(fetch_type, count=1 if last_id is None else 40)
         results.extend(tweets)
 
         logger.info(f"[Fetch:@{username}]: {len(tweets)} Tweets")
         fetch_pages = 1
 
-        if latest_id is not None and latest_id not in [tweet.id for tweet in tweets]:
+        if last_id is not None or last_time is not None:
             while fetch_pages != -1:
-                if latest_id in [tweet.id for tweet in tweets]:
+                if last_id is not None and last_id in [tweet.id for tweet in tweets]:
                     fetch_pages = -1
                     break
 
+                if last_time is not None and any(
+                    last_time.diff(tweet.created_at_datetime, abs=False).total_seconds() < 0
+                    for tweet in tweets
+                ):
+                    fetch_pages = -1
+                    break
+
+                fetch_pages += 1
                 await sleep(self._config.fetch_page_interval)
 
                 logger.info(f"[Fetch:@{username}] Get {fetch_pages} Page")
@@ -59,7 +75,7 @@ class XService:
 
                 results.extend(tweets)
 
-        return self._sort_and_trim(results, latest_id)
+        return self._sort_and_trim(results, last_id, last_time)
 
     @staticmethod
     def filter(tweets: list[Tweet], ignore_replies: bool = False, ignore_retweets: bool = False):
@@ -74,13 +90,21 @@ class XService:
         )
 
     @staticmethod
-    def _sort_and_trim(tweets: list[Tweet], latest_id: str | None = None) -> list[Tweet]:
+    def _sort_and_trim(
+        tweets: list[Tweet], last_id: str | None = None, last_time: "DateTime | None" = None
+    ) -> list[Tweet]:
         result = sorted(tweets, key=lambda x: x.created_at_datetime, reverse=True)
-        if latest_id is None:
+        if last_id is None and last_time is None:
             return result
 
         for idx, tweet in enumerate(result):
-            if tweet.id == latest_id:
+            if tweet.id == last_id:
                 return result[0:idx]
+
+            if (
+                last_time is not None
+                and pendulum.instance(tweet.created_at_datetime).diff(last_time).total_seconds() > 0
+            ):
+                return result[0 : idx - 1]
 
         return result
