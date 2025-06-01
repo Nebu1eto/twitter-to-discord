@@ -1,7 +1,9 @@
 from pathlib import Path
 from uuid import UUID
 
+from sqlalchemy import Engine
 from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel import select
@@ -12,24 +14,43 @@ from models.database import Subscription
 
 
 class DatabaseService:
+    _async_engine: AsyncEngine | None
+    _sync_engine: Engine | None
+
     def __init__(self, config: Configuration) -> None:
         self._config = config
+        self._async_engine = None
+        self._sync_engine = None
 
-    def _create_engine(self):
-        return create_async_engine(
-            f"sqlite+aiosqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True
-        )
+    def _get_database_path(self):
+        return Path(self._config.database_path) / "tracker.db"
+
+    def _get_async_engine(self):
+        if self._async_engine is None:
+            self._async_engine = create_async_engine(
+                f"sqlite+aiosqlite:///{self._get_database_path()}?check_same_thread=false",
+                echo=True,
+            )
+
+        return self._async_engine
+
+    def _get_sync_engine(self):
+        if self._sync_engine is None:
+            self._sync_engine = create_engine(
+                f"sqlite:///{self._get_database_path()}?check_same_thread=false",
+                echo=True,
+            )
+
+        return self._sync_engine
 
     def initialize(self):
-        if (Path(self._config.database_path) / "tracker.db").is_file():
+        if not self._get_database_path().is_file():
             return
 
-        SQLModel.metadata.create_all(
-            create_engine(f"sqlite:///{Path(self._config.database_path) / 'tracker.db'}", echo=True)
-        )
+        SQLModel.metadata.create_all(self._get_sync_engine())
 
     def session(self):
-        return AsyncSession(self._create_engine())
+        return AsyncSession(self._get_async_engine())
 
     async def subscriptions(self, channel_id: str | None = None):
         async with self.session() as session:
