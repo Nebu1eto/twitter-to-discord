@@ -19,6 +19,8 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(stream=sys.stdout)],
 )
 log = logging.getLogger("bot")
+for item in [logging.getLogger("httpx"), logging.getLogger("httpcore")]:
+    item.setLevel(logging.WARNING)
 
 
 class BotClient(commands.Bot):
