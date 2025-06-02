@@ -1,5 +1,6 @@
 import logging
 import re
+from math import ceil
 from uuid import UUID
 
 import aiocron
@@ -153,17 +154,22 @@ class SubscribeCog(Cog):
                 )
 
                 text = f"{len(tweets)} New Activities from @{tweets[0].user.screen_name}"
-                if len(tweets) == 1:
-                    text = f"New Activity from @{tweets[0].user.screen_name}"
-                if len(tweets) > 10:
-                    text = (
-                        f"{len(tweets)} New Activities from @{tweets[0].user.screen_name}"
-                        "Due to Discord's API limitations, "
-                        "Tweet embeds are displayed up to a maximum of 10."
-                    )
+                embeds = [make_embed(tweet) for tweet in tweets]
 
-                # NOTE(Haze): Discord only accepts up to 10 embeds.
-                await channel.send(text, embeds=[make_embed(tweet) for tweet in tweets][:10])
+                if len(tweets) <= 10:
+                    if len(tweets) == 1:
+                        text = f"New Activity from @{tweets[0].user.screen_name}"
+
+                    await channel.send(text, embeds=embeds)
+                    await session.commit()
+                    return
+
+                # NOTE(Haze): Don't use asyncio.gather, it requires to executed sequentially.
+                max_pages = ceil(len(tweets) / 10)
+                for idx in range(max_pages):
+                    paged_text = f"{text}\nPage {idx + 1}/{max_pages}"
+                    await channel.send(paged_text, embeds=embeds[idx * 10 : (idx + 1) * 10])
+
                 await session.commit()
             except NoResultFound:
                 if (job := self._subscriptions.get(subscription_id, None)) is not None:
