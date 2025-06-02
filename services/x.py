@@ -101,10 +101,7 @@ class XService:
             if tweet.id == last_id:
                 return result[0:idx]
 
-            if (
-                last_time is not None
-                and pendulum.instance(tweet.created_at_datetime).diff(last_time).total_seconds() > 0
-            ):
-                return result[0 : idx - 1]
+        if last_time is not None:
+            return list(filter(lambda tweet: tweet.created_at_datetime > last_time, tweets))
 
         return result
